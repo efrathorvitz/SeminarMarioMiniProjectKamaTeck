@@ -1,4 +1,5 @@
 #include "Animation.h"
+#include<iostream>
 #ifdef _DEBUG
 #pragma comment(lib, "opencv_world451d.lib")
 #else
