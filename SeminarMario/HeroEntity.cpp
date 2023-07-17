@@ -63,6 +63,7 @@ EntityStatePtr createHeroState(
 		physicsPtr.reset(new BoundedPhysicsDecorator
 		(make_shared<JumpPhysics>
 			(JumpPhysics(15, 25, 3)), bounds));
+
 		break;
 	default:
 		throw std::exception("Unknown physics state!");
