@@ -17,6 +17,11 @@
     <ClCompile Include="Physics.cpp" />
     <ClCompile Include="pracrice_Day2.cpp" />
     <ClCompile Include="SlimeEntity.cpp" />
+    <ClCompile Include="HeroEntity.cpp" />
+    <ClCompile Include="Observer.cpp" />
+    <ClCompile Include="Timer.cpp" />
+    <ClCompile Include="LivesEntity.cpp" />
+    <ClCompile Include="EntitiesPool.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Animation.h">
@@ -26,5 +31,11 @@
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="Physics.h" />
     <ClInclude Include="SlimeEntity.h" />
+    <ClInclude Include="Config.h" />
+    <ClInclude Include="HeroEntity.h" />
+    <ClInclude Include="Observer.h" />
+    <ClInclude Include="Timer.h" />
+    <ClInclude Include="LivesEntity.h" />
+    <ClInclude Include="EntitiesPool.h" />
   </ItemGroup>
 </Project>

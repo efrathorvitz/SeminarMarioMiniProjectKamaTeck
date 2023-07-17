@@ -17,7 +17,7 @@ using namespace cv;
 // read carefully the comments below - it contains explanations and instructions.
 // and do the exercises.
 
-int main()
+int main_2()
 {
 	// Animation is a class we wrote for saving you the handling with the 
 	// details of image processing and focusing on code design. iyH we'll get 

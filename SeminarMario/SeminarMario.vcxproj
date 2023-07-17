@@ -88,18 +88,29 @@
   <ItemGroup>
     <ClCompile Include="Animation.cpp" />
     <ClCompile Include="Entities.cpp" />
+    <ClCompile Include="EntitiesPool.cpp" />
     <ClCompile Include="Graphics.cpp" />
+    <ClCompile Include="HeroEntity.cpp" />
+    <ClCompile Include="LivesEntity.cpp" />
+    <ClCompile Include="Observer.cpp" />
     <ClCompile Include="Physics.cpp" />
     <ClCompile Include="pracrice.cpp" />
     <ClCompile Include="pracrice_Day2.cpp" />
     <ClCompile Include="SlimeEntity.cpp" />
+    <ClCompile Include="Timer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Animation.h" />
+    <ClInclude Include="Config.h" />
     <ClInclude Include="Entities.h" />
+    <ClInclude Include="EntitiesPool.h" />
     <ClInclude Include="Graphics.h" />
+    <ClInclude Include="HeroEntity.h" />
+    <ClInclude Include="LivesEntity.h" />
+    <ClInclude Include="Observer.h" />
     <ClInclude Include="Physics.h" />
     <ClInclude Include="SlimeEntity.h" />
+    <ClInclude Include="Timer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

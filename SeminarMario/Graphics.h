@@ -27,7 +27,6 @@ protected:
 	AnimationPtr _animation;
 	int _currFrameIdx;
 	bool _isCyclic;
-
 public:
 	SingleAnimationGraphics(AnimationPtr animPtr, bool isCyclic);
 

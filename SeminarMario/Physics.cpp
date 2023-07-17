@@ -69,8 +69,9 @@ cv::Mat const& FixedWidgetPhysics::getCollisionMask() const
 	return _mask;
 }
 
-ConstVelocityPhysics::ConstVelocityPhysics(cv::Point const& velocity):
-	_velocity(velocity), _currTL(0, 0), _mask()
+/// ////////////////////////////////////////////////////
+ConstVelocityPhysics::ConstVelocityPhysics(cv::Point const& velocity)
+	:_currTL(0, 0), _velocity(velocity)
 {
 }
 
@@ -81,8 +82,8 @@ void ConstVelocityPhysics::reset(cv::Point const& tl)
 
 bool ConstVelocityPhysics::update(cv::Mat const& collisionMask)
 {
-	_currTL = _currTL + _velocity;
 	_mask = collisionMask;
+	_currTL += _velocity;
 	return false;
 }
 
@@ -93,7 +94,7 @@ cv::Mat const& ConstVelocityPhysics::getCollisionMask() const
 
 bool ConstVelocityPhysics::checkCollision(IPhysicsComponentPtr const& other) const
 {
-	return checkPixelLevelCollision(this,other);
+	return checkPixelLevelCollision(this, other);
 }
 
 cv::Point const& ConstVelocityPhysics::getTL() const
@@ -101,35 +102,114 @@ cv::Point const& ConstVelocityPhysics::getTL() const
 	return _currTL;
 }
 
-JumpPhysics::JumpPhysics(int horizontalVelocity, int initialVerticalVelocity, int gravity):
-	_initialJumpVelocity((-horizontalVelocity,initialVerticalVelocity)),_gravity(gravity),
-	_currTL((0,0)), _mask(),_currVelocity(_initialJumpVelocity)
+
+///////////////////////////////////////////////
+NonCollidingPhysicsDecorator::NonCollidingPhysicsDecorator(IPhysicsComponentPtr base)
+	:_base(base)
 {
 }
 
-void JumpPhysics::reset(cv::Point const& tl)
+void NonCollidingPhysicsDecorator::reset(cv::Point const& tl)
 {
-	_jumpStartTL = tl;
-	_currTL = _jumpStartTL;
+	_base->reset(tl);
 }
 
-bool JumpPhysics::update(cv::Mat const& collisionMask)
+bool NonCollidingPhysicsDecorator::update(cv::Mat const& collisionMask)
 {
-	_mask = collisionMask;
-	_currVelocity.y = _currVelocity.y - _gravity;
-	return _currVelocity== _jumpStartTL;
+	return _base->update(collisionMask);
 }
 
-cv::Mat const& JumpPhysics::getCollisionMask() const
+cv::Mat const& NonCollidingPhysicsDecorator::getCollisionMask() const
 {
-	return _mask;
+	return Mat();
 }
 
-bool JumpPhysics::checkCollision(IPhysicsComponentPtr const& other) const
+bool NonCollidingPhysicsDecorator::checkCollision(std::shared_ptr<IPhysicsComponent> const& other) const
+{
+	return false;
+}
+
+cv::Point const& NonCollidingPhysicsDecorator::getTL() const
+{
+	return _base->getTL();
+}
+
+BoundedPhysicsDecorator::BoundedPhysicsDecorator(IPhysicsComponentPtr base, cv::Rect bounds):
+	_base(base),_bounds(bounds)
+{
+}
+
+void BoundedPhysicsDecorator::test()
+{
+		if (currentTL.x < 0)
+			currentTL.x = _bounds.width;
+		else if(currentTL.x > _bounds.width)
+			currentTL.x = 0;
+}
+
+void BoundedPhysicsDecorator::reset(cv::Point const& tl)
+{
+	_base->reset(tl);
+	currentTL = tl;
+}
+
+bool BoundedPhysicsDecorator::update(cv::Mat const& collisionMask)
+{
+	Point prevTL = _base->getTL();
+	test();
+	bool result= _base->update(collisionMask);
+	Point velocity = _base->getTL() - prevTL;
+	currentTL += velocity;
+	return result;
+}
+
+cv::Mat const& BoundedPhysicsDecorator::getCollisionMask() const
+{
+	return _base->getCollisionMask();
+}
+
+bool BoundedPhysicsDecorator::checkCollision(std::shared_ptr<IPhysicsComponent> const& other) const
 {
 	return checkPixelLevelCollision(this,other);
 }
 
+cv::Point const& BoundedPhysicsDecorator::getTL() const
+{
+	return currentTL;
+}
+
+JumpPhysics::JumpPhysics(int horizontalVelocity, int initialVerticalVelocity, int gravity)
+{
+	_initialJumpVelocity = cv::Point(horizontalVelocity, -initialVerticalVelocity);
+	_currVelocity = _initialJumpVelocity;
+	_gravity = gravity;
+}
+void JumpPhysics::reset(cv::Point const& tl)
+{
+	_jumpStartTL = tl;
+	_currTL = tl;
+	_currVelocity = _initialJumpVelocity;
+}
+//////////////////////////////////////////////////////
+bool JumpPhysics::update(cv::Mat const& collisionMask)
+{
+	_mask = collisionMask;
+	_currTL += _currVelocity;
+	_currVelocity.y += _gravity;
+	if (_currTL.y >= _jumpStartTL.y)
+	{
+		_currTL.y = _jumpStartTL.y;
+	}
+	return _currTL.y >= _jumpStartTL.y;;
+}
+cv::Mat const& JumpPhysics::getCollisionMask() const
+{
+	return _mask;
+}
+bool JumpPhysics::checkCollision(IPhysicsComponentPtr const& other) const
+{
+	return checkPixelLevelCollision(this, other);
+}
 cv::Point const& JumpPhysics::getTL() const
 {
 	return _currTL;

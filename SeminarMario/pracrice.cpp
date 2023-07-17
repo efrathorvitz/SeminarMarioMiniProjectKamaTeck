@@ -1,125 +1,84 @@
 #include "Animation.h"
 #include <opencv2/opencv.hpp>
-void duck();
-void jumpRight();
-cv::Mat background = cv::imread(R"(../Animations/background.png)", cv::IMREAD_UNCHANGED);
+#include "Timer.h"
+#include "HeroEntity.h"
+#include <Windows.h>
+// @2: include the slime enemy:
+#include "SlimeEntity.h"
+// @2: no need to write cv:: every time, we can just use namespace:
+using namespace cv;
+// @2: NOTE! you should "use namespace" only in cpp file, NOT in H files! (because it "passes on" with the #include statement.)
 
-cv::Point topLeft(background.size().width / 3, background.size().height * 2 / 4);
-int key = ' ';
-cv::Point walkRight()
-{
-	
-	Animation animation(R"(../Animations/Hero/runRight)");
-	
-	
-	for (int i = 0; i < animation.numFrames(); i++)
-	{
-		cv::Mat canvas = background.clone();
-		canvas.create(100, 200, CV_8UC3);
-		Frame const& frame = animation.getFrame(i);
-		topLeft.x += (background.size().width )/ 10;
-		drawFrame(frame, canvas, topLeft);
-		cv::imshow("test", canvas);
-	    key = cv::waitKey(100);
-	}
-	return topLeft;
-}
-void stand();
 
-int main_p()
+// before you start: open SeminarMario project properties, go to 
+// Debugging -> Environment
+// set the following value:
+// PATH=$(PATH);../OpenCV_451/bin
+// hit Ctrl + F5 and see a walking lady. that's our hero!
+// press Esc to exit.
+// read carefully the comments below - it contains explanations and instructions.
+// and do the exercises.
+
+int main()
 {
+	// OpenCV is a popular image processing and computer vision library.
+	// it is not part of the C++ language, but it's written in C++.
+	// in this project we integrated it for you.
+	// The class that represents an image in OpenCV is Mat (i.e. Matrix),
+	// and it's defined inside namespace cv. So the full name is Mat.
+	Mat background = imread(R"(..\Animations\background.png)", IMREAD_UNCHANGED);
+	cv::resize(background, background, cv::Size(GetSystemMetrics(SM_CXFULLSCREEN), GetSystemMetrics(SM_CYFULLSCREEN))); 
+	//cv::resize(background,background, cv::Size(1500, 650));
+	//auto slimeState = CreateSlimeEnemy(R"(..\Animations\SlimeOrange)");
+	//slimeState->reset(Point(background.size().width * 2 / 3, background.size().height * 4 / 5));
+	
+	Rect bounds = Rect(0, 0, background.size().width, background.size().height);
+	EntityPtr hero = createHero(R"(..\Animations\Hero)",bounds);
+	hero->reset(Point(background.size().width / 2, background.size().height * 2 / 3));
+	
+
+	EntityPtr slime = createSlime(R"(..\Animations\SlimeOrange)");
+	slime->reset(Point(background.size().width * 2 / 3, background.size().height * 4 / 5));
+	//EntityPtr lives =  
+
+
+	Timer timer(/*freq. ms=*/100);
+
+
+	timer.Register(slime);
+	timer.Register(hero);
+
+
+
+
 	bool isToExit = false;
 	while (false == isToExit)
 	{
-		switch (key){
-		case 'd':
-			walkRight();
-			break;
-		case 's':
-			duck();
-			break;
-		case 'w':
-			jumpRight();
-			break;
-		case 'a':
-			stand();
-			break;
-		default:
-			stand();
-			break;
-		}
-		
-		    key = cv::waitKey(100);
-			
-			if (key == 27) // if you pressed ESC key
-			{
-				isToExit = true;
-			}
-		
+		Mat canvas = background.clone();
+
+		timer.tick();
+		slime->draw(canvas);
+		hero->draw(canvas);
+
+		imshow("test", canvas);
 	}
 
 	return 0;
 }
+
 // 1.
 // draws an animation of our hero that ducks in place, and stays down till you 
 // press the 'w' key. (if (key == 'w'))
-void duck() {
-	Animation duck_animation(R"(../Animations/Hero/duckDown)");
-	for (int i = 0; i < duck_animation.numFrames(); i++)
-	{
-		cv::Mat canvas = background.clone();
-		Frame const& frame =duck_animation.getFrame(i);
-		topLeft.x += (1 / 10) * (background.size().width);
-		drawFrame(frame, canvas, topLeft);
-		cv::imshow("test", canvas);
-	}
-	
-	Animation sty_animation(R"(../Animations/Hero/duckStay)");
-	
-	while (key != 'w')
-	{
-		cv::Mat canvas = background.clone();
-		drawFrame(sty_animation.getFrame(0), canvas, topLeft); 
-		cv::imshow("test", canvas);
-	    key = cv::waitKey(100);
-	}
-}
+void duck();
 
 // 2.
 // draws an animation of our hero that walks to the right, and ACTUALLLY MOVES RIGHT
 // with a constant speed, of (1/10)*(image width) per 100 milliseconds (=0.1 second).
-void stand() {
-	Animation animation(R"(../Animations/Hero/idle)");
-	for (int i = 0; i < animation.numFrames(); i++)
-	{
-		cv::Mat canvas = background.clone();
-		Frame const& frame = animation.getFrame(i);
-		drawFrame(frame, canvas, topLeft);
-		cv::imshow("test", canvas);
-		int key = cv::waitKey(100);
-	}
-}
+void walkRight();
 
 // 3.
 // draw our hero jumps up and right, and stays standing after jump finishes.
-void jumpRight() {
-	Animation animation(R"(../Animations/Hero/idle)");
-
-		cv::Mat canvas = background.clone();
-		Frame const& frame = animation.getFrame(0);
-		topLeft.x += 40;
-		topLeft.y += 40;
-		drawFrame(frame, canvas, topLeft);
-		cv::imshow("test", canvas);
-	    key = cv::waitKey(100);
-
-	    canvas = background.clone();
-		topLeft.y -= 30;
-		drawFrame(frame, canvas, topLeft);
-		cv::imshow("test", canvas);
-		key = cv::waitKey(100);
-		stand();
-}
+void jumpRight();
 
 // 4.
 // write a main() that:
@@ -128,11 +87,10 @@ void jumpRight() {
 // when user presses 'w' - hero jumps
 // when user presses 'a' - hero stops (if it was walking right before)
 
-
 // 5.
 // in walkRight - when hero reaches the canvas boundery - don't let it go outside of image.
 // force the hero x coordinate to be such that we'll see her.
-// hint: you can get hero image cv::Mat with frame.image
+// hint: you can get hero image Mat with frame.image
 
 // 6.
 // do the same with jumpRight
