@@ -62,7 +62,7 @@ EntityStatePtr createHeroState(
 	case HERO_JUMP:
 		physicsPtr.reset(new BoundedPhysicsDecorator
 		(make_shared<JumpPhysics>
-			(JumpPhysics(15, 25, 3)), bounds));
+			(JumpPhysics(15, 30, 4)), bounds));
 
 		break;
 	default:

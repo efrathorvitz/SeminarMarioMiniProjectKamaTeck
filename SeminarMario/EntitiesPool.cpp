@@ -1,6 +1,5 @@
 #include "EntitiesPool.h"
-//#include <exception>
-using namespace std;
+
 void EntitiesPool::insert(EntityPtr whom)
 {
 	_pool.push_back(whom);
@@ -15,6 +14,11 @@ EntityPtr EntitiesPool::getNext()
 			return _pool[i];
 		}
 	throw exception("there is not avvilible entity");
+}
+
+EntityPtr EntitiesPool::getByIndex(int index)
+{
+	return _isInUse[index] ? _pool[index] : nullptr;
 }
 
 void EntitiesPool::returnEntity(EntityPtr toFree)

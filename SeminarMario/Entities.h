@@ -2,7 +2,15 @@
 #include "Graphics.h"
 #include "Physics.h"
 #include "Observer.h"
+#include "Animation.h"
+#include "Config.h"
+#include <memory>
+#include <Windows.h>
 #include <map>
+#include <exception>
+using namespace std;
+using namespace cv;
+
 
 class EntityState : public Subject
 {
@@ -46,4 +54,8 @@ public:
 	// Prototype Design Pattern
 	//virtual std::shared_ptr<Entity> clone() = 0;
 };
+
 typedef std::shared_ptr<Entity> EntityPtr;
+
+EntityPtr createLives(std::string const& liveImage, int countLives);
+EntityPtr createScore(float fontScale, int score, int fontFace);

@@ -1,12 +1,5 @@
 #include "Entities.h"
-#include "Graphics.h"
-#include "Physics.h"
-#include "Animation.h"
-#include "Config.h"
 
-#include <memory>
-using namespace std;
-using namespace cv;
 
 EntityState::EntityState(IGraphicsComponentPtr graphics, IPhysicsComponentPtr physics)
 	:_graphicsPtr(graphics), _physicsPtr(physics)
@@ -72,6 +65,7 @@ void Entity::onNotify(Event const& e)
 		e.code == EventCodes::TIME_TICK)
 	{
 		_state->update();
+
 	}
 	
 	auto newStateCandidate = _state->tryModifyState(e);
@@ -91,4 +85,35 @@ void Entity::reset(cv::Point const& TL)
 void Entity::draw(cv::Mat& canvas)
 {
 	_state->draw(canvas);
+}
+
+
+EntityPtr createLives(std::string const& liveImage, int countLives)
+{
+	Frame heart(liveImage);
+	cv::resize(heart.image, heart.image,cv::Size(30,30));
+	cv::resize(heart.mask, heart.mask, cv::Size(30, 30));
+	IGraphicsComponentPtr graphicsPtr(
+		new LivesGraphics(heart, countLives));
+
+	IPhysicsComponentPtr physicsPtr =
+		make_shared<FixedWidgetPhysics>();
+	cv::Size size(cv::Size(GetSystemMetrics(SM_CXFULLSCREEN), GetSystemMetrics(SM_CYFULLSCREEN)));
+	physicsPtr->reset(Point(size.width-50,30));
+
+	return make_shared<Entity>(
+		make_shared<EntityState>(graphicsPtr, physicsPtr));
+}
+
+EntityPtr createScore(float fontScale, int score, int fontFace)
+{
+	IGraphicsComponentPtr graphicsPtr(
+		new ScoresGraphics(fontScale, score, fontFace));
+
+	IPhysicsComponentPtr physicsPtr =
+		make_shared<FixedWidgetPhysics>();
+
+	physicsPtr->reset(Point(100,100));
+	return make_shared<Entity>(
+		make_shared<EntityState>(graphicsPtr, physicsPtr));
 }

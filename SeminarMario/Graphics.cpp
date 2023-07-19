@@ -84,9 +84,10 @@ cv::Mat LivesGraphics::getCollisionMask()
 
 void LivesGraphics::draw(cv::Mat& canvas, cv::Point const& topLeft)
 {
-	for (size_t i = 0; i < _livesCount; i++)
-	{
-		drawFrame(_singleLife, canvas, topLeft);
+	Point copyTopLeft = topLeft;
+	for (size_t i = 0; i < _livesCount; i++){
+		drawFrame(_singleLife, canvas, copyTopLeft);
+		copyTopLeft.x -= _singleLife.mask.size().width+10;
 	}
 }
 
@@ -111,9 +112,10 @@ cv::Mat ScoresGraphics::getCollisionMask()
 
 void ScoresGraphics::draw(cv::Mat& canvas, cv::Point const& topLeft)
 {
-	putText(canvas, to_string(_score), topLeft, _fontFace, _fontScale, (0, 0, 0), 2, FILLED);
+	Scalar color(0,0,255);
+	putText(canvas, to_string(_score), topLeft, _fontFace, _fontScale,color, 2, FILLED);
 	imshow("test", canvas);
-	waitKey();
+	//waitKey();
 }
 
 void ScoresGraphics::reset(int code)

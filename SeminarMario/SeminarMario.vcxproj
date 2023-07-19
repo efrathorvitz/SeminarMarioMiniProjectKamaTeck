@@ -89,9 +89,9 @@
     <ClCompile Include="Animation.cpp" />
     <ClCompile Include="Entities.cpp" />
     <ClCompile Include="EntitiesPool.cpp" />
+    <ClCompile Include="game.cpp" />
     <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="HeroEntity.cpp" />
-    <ClCompile Include="LivesEntity.cpp" />
     <ClCompile Include="Observer.cpp" />
     <ClCompile Include="Physics.cpp" />
     <ClCompile Include="pracrice.cpp" />
@@ -104,9 +104,9 @@
     <ClInclude Include="Config.h" />
     <ClInclude Include="Entities.h" />
     <ClInclude Include="EntitiesPool.h" />
+    <ClInclude Include="game.h" />
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="HeroEntity.h" />
-    <ClInclude Include="LivesEntity.h" />
     <ClInclude Include="Observer.h" />
     <ClInclude Include="Physics.h" />
     <ClInclude Include="SlimeEntity.h" />

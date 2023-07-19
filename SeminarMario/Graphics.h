@@ -55,8 +55,7 @@ public:
 
 public:
 	virtual cv::Mat getCollisionMask();
-	virtual void draw(cv::Mat& canvas, cv::Point const& topLeft);
-	// @2:reset: set number of lives:
+	virtual void draw(cv::Mat& canvas, cv::Point const& topLeft) override;
 	virtual void reset(int code = 0) override;
 	virtual bool update();
 };

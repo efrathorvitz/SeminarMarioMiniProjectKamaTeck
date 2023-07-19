@@ -1,6 +1,7 @@
 #pragma once
 
 #include <opencv2/opencv.hpp>
+//#include "EntitiesPool.h"
 
 class IPhysicsComponent
 {
@@ -49,22 +50,21 @@ public:
 
 // Liskov Open Closed Principle
 // Decorator Design Pattern
-class NonCollidingPhysicsDecorator : public IPhysicsComponent
-{
-private:
-	IPhysicsComponentPtr _base;
-
-public:
-	NonCollidingPhysicsDecorator(IPhysicsComponentPtr base);
-	
-	// Inherited via IPhysicsComponent
-	virtual void reset(cv::Point const& tl) override;
-	virtual bool update(cv::Mat const& collisionMask) override;
-	virtual cv::Mat const& getCollisionMask() const override;
-	virtual bool checkCollision(std::shared_ptr<IPhysicsComponent> const& other) const override;
-	virtual cv::Point const& getTL() const override;
-
-};
+//class NonCollidingPhysicsDecorator : public IPhysicsComponent
+//{
+//private:
+//	IPhysicsComponentPtr _base;
+//public:
+//	NonCollidingPhysicsDecorator(IPhysicsComponentPtr base);
+//	
+//	// Inherited via IPhysicsComponent
+//	virtual void reset(cv::Point const& tl) override;
+//	virtual bool update(cv::Mat const& collisionMask) override;
+//	virtual cv::Mat const& getCollisionMask() const override;
+//	virtual bool checkCollision(std::shared_ptr<IPhysicsComponent> const& other) const override;
+//	virtual cv::Point const& getTL() const override;
+//
+//};
 
 class BoundedPhysicsDecorator : public IPhysicsComponent
 {
@@ -133,3 +133,4 @@ public:
 	virtual bool checkCollision(IPhysicsComponentPtr const& other) const;
 	virtual cv::Point const& getTL() const;
 };
+

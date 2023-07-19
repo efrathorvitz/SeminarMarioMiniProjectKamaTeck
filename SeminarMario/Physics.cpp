@@ -104,35 +104,35 @@ cv::Point const& ConstVelocityPhysics::getTL() const
 
 
 ///////////////////////////////////////////////
-NonCollidingPhysicsDecorator::NonCollidingPhysicsDecorator(IPhysicsComponentPtr base)
-	:_base(base)
-{
-}
-
-void NonCollidingPhysicsDecorator::reset(cv::Point const& tl)
-{
-	_base->reset(tl);
-}
-
-bool NonCollidingPhysicsDecorator::update(cv::Mat const& collisionMask)
-{
-	return _base->update(collisionMask);
-}
-
-cv::Mat const& NonCollidingPhysicsDecorator::getCollisionMask() const
-{
-	return Mat();
-}
-
-bool NonCollidingPhysicsDecorator::checkCollision(std::shared_ptr<IPhysicsComponent> const& other) const
-{
-	return false;
-}
-
-cv::Point const& NonCollidingPhysicsDecorator::getTL() const
-{
-	return _base->getTL();
-}
+//NonCollidingPhysicsDecorator::NonCollidingPhysicsDecorator(IPhysicsComponentPtr base)
+//	:_base(base)
+//{
+//}
+//
+//void NonCollidingPhysicsDecorator::reset(cv::Point const& tl)
+//{
+//	_base->reset(tl);
+//}
+//
+//bool NonCollidingPhysicsDecorator::update(cv::Mat const& collisionMask)
+//{
+//	bool result = _base->update(collisionMask);	
+//}
+//
+//cv::Mat const& NonCollidingPhysicsDecorator::getCollisionMask() const
+//{
+//	return Mat();
+//}
+//
+//bool NonCollidingPhysicsDecorator::checkCollision(std::shared_ptr<IPhysicsComponent> const& other) const
+//{
+//	return false;
+//}
+//
+//cv::Point const& NonCollidingPhysicsDecorator::getTL() const
+//{
+//	return _base->getTL();
+//}
 
 BoundedPhysicsDecorator::BoundedPhysicsDecorator(IPhysicsComponentPtr base, cv::Rect bounds):
 	_base(base),_bounds(bounds)

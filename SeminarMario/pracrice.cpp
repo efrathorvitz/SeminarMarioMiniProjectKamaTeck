@@ -3,8 +3,10 @@
 #include "Timer.h"
 #include "HeroEntity.h"
 #include <Windows.h>
-// @2: include the slime enemy:
 #include "SlimeEntity.h"
+#include "game.h"
+// @2: include the slime enemy:
+
 // @2: no need to write cv:: every time, we can just use namespace:
 using namespace cv;
 // @2: NOTE! you should "use namespace" only in cpp file, NOT in H files! (because it "passes on" with the #include statement.)
@@ -18,8 +20,12 @@ using namespace cv;
 // press Esc to exit.
 // read carefully the comments below - it contains explanations and instructions.
 // and do the exercises.
-
-int main()
+int main() {
+	game game;
+	game.startGame();
+	return 0;
+}
+int main_1()
 {
 	// OpenCV is a popular image processing and computer vision library.
 	// it is not part of the C++ language, but it's written in C++.
@@ -39,7 +45,8 @@ int main()
 
 	EntityPtr slime = createSlime(R"(..\Animations\SlimeOrange)");
 	slime->reset(Point(background.size().width * 2 / 3, background.size().height * 4 / 5));
-	//EntityPtr lives =  
+	EntityPtr lives = createLives("..\\Animations\\heart.png", 5);
+	EntityPtr score = createScore(3, 100, FONT_HERSHEY_COMPLEX_SMALL);
 
 
 	Timer timer(/*freq. ms=*/100);
@@ -59,7 +66,8 @@ int main()
 		timer.tick();
 		slime->draw(canvas);
 		hero->draw(canvas);
-
+		lives->draw(canvas);
+		score->draw(canvas);
 		imshow("test", canvas);
 	}
 
