@@ -1,5 +1,7 @@
 #include "game.h"
-void game::startGame()
+#include "LivesEntity.h"
+#include "ScoreEntity.h"
+void Game::startGame()
 {
 	IPhysicsComponentPtr _phvgj;
 	Mat background = imread(R"(..\Animations\background.png)", IMREAD_UNCHANGED);
@@ -36,5 +38,6 @@ void game::startGame()
 		lives->draw(canvas);
 		score->draw(canvas);
 		imshow("test", canvas);
+		hero->CheckCollising(slime);
 	}
 }

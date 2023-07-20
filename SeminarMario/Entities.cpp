@@ -37,6 +37,11 @@ IPhysicsComponentPtr const& EntityState::getPhysics() const
 	return _physicsPtr;
 }
 
+IGraphicsComponentPtr const& EntityState::getGraphics() const
+{
+	return _graphicsPtr;
+}
+
 void EntityState::reset(cv::Point const& TL)
 {
 	_graphicsPtr->reset();
@@ -63,10 +68,7 @@ void Entity::onNotify(Event const& e)
 		e.type == EventTypes::EVENT_TIMER
 		&&
 		e.code == EventCodes::TIME_TICK)
-	{
-		_state->update();
-
-	}
+			_state->update();
 	
 	auto newStateCandidate = _state->tryModifyState(e);
 	
@@ -75,6 +77,13 @@ void Entity::onNotify(Event const& e)
 		newStateCandidate->reset(_state->getPhysics()->getTL());
 		_state = newStateCandidate;
 	}
+
+	if (e.sender == EventSenders::SENDER_ENTITY_STATE
+		&&
+		e.type == EventTypes::EVENT_PHYSICS
+		&&
+		e.code == EventCodes::COLLISION_WITH_ENEMY) 
+			onCollising();			
 }
 
 void Entity::reset(cv::Point const& TL)
@@ -82,38 +91,17 @@ void Entity::reset(cv::Point const& TL)
 	_state->reset(TL);
 }
 
+void Entity::CheckCollising(shared_ptr<Entity> const& other)
+{
+	if(_state->getPhysics()->checkCollision(other->_state->getPhysics()))
+		_state->Notify(Event{ EventSenders::SENDER_ENTITY_STATE, EventTypes::EVENT_PHYSICS, EventCodes::COLLISION_WITH_ENEMY });
+}
+
+
 void Entity::draw(cv::Mat& canvas)
 {
 	_state->draw(canvas);
 }
 
 
-EntityPtr createLives(std::string const& liveImage, int countLives)
-{
-	Frame heart(liveImage);
-	cv::resize(heart.image, heart.image,cv::Size(30,30));
-	cv::resize(heart.mask, heart.mask, cv::Size(30, 30));
-	IGraphicsComponentPtr graphicsPtr(
-		new LivesGraphics(heart, countLives));
 
-	IPhysicsComponentPtr physicsPtr =
-		make_shared<FixedWidgetPhysics>();
-	cv::Size size(cv::Size(GetSystemMetrics(SM_CXFULLSCREEN), GetSystemMetrics(SM_CYFULLSCREEN)));
-	physicsPtr->reset(Point(size.width-50,30));
-
-	return make_shared<Entity>(
-		make_shared<EntityState>(graphicsPtr, physicsPtr));
-}
-
-EntityPtr createScore(float fontScale, int score, int fontFace)
-{
-	IGraphicsComponentPtr graphicsPtr(
-		new ScoresGraphics(fontScale, score, fontFace));
-
-	IPhysicsComponentPtr physicsPtr =
-		make_shared<FixedWidgetPhysics>();
-
-	physicsPtr->reset(Point(100,100));
-	return make_shared<Entity>(
-		make_shared<EntityState>(graphicsPtr, physicsPtr));
-}

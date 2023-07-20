@@ -92,10 +92,12 @@
     <ClCompile Include="game.cpp" />
     <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="HeroEntity.cpp" />
+    <ClCompile Include="LivesEntity.cpp" />
     <ClCompile Include="Observer.cpp" />
     <ClCompile Include="Physics.cpp" />
     <ClCompile Include="pracrice.cpp" />
     <ClCompile Include="pracrice_Day2.cpp" />
+    <ClCompile Include="ScoreEntity.cpp" />
     <ClCompile Include="SlimeEntity.cpp" />
     <ClCompile Include="Timer.cpp" />
   </ItemGroup>
@@ -107,8 +109,10 @@
     <ClInclude Include="game.h" />
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="HeroEntity.h" />
+    <ClInclude Include="LivesEntity.h" />
     <ClInclude Include="Observer.h" />
     <ClInclude Include="Physics.h" />
+    <ClInclude Include="ScoreEntity.h" />
     <ClInclude Include="SlimeEntity.h" />
     <ClInclude Include="Timer.h" />
   </ItemGroup>

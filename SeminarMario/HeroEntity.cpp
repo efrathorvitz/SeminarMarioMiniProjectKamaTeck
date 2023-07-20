@@ -1,27 +1,16 @@
 #include "HeroEntity.h"
-#include "opencv2/opencv.hpp"
-#include "Config.h"
-
-#include <memory>
-#include <filesystem>
-
-using namespace cv;
-using namespace std;
-namespace fs = std::filesystem;
 
 enum HeroStates {
 	HERO_IDLE,
 	HERO_RUN_RIGHT,
 	HERO_RUN_LEFT,
-	HERO_DUCK, 
-	HERO_STAY_DUCK, 
-	HERO_STAND_AFTER_DUCK, 
-	HERO_JUMP 
+	HERO_DUCK,
+	HERO_STAY_DUCK,
+	HERO_STAND_AFTER_DUCK,
+	HERO_JUMP,
+	HERO_COLLISING
 };
-
-EntityStatePtr createHeroState(
-	fs::path const& animationFolder,
-	HeroStates state,Rect bounds =Rect())
+EntityStatePtr createHeroState(fs::path const& animationFolder, HeroStates state, Rect bounds = Rect())
 {
 	AnimationPtr animation(new Animation(animationFolder.string()));
 	bool isNotCyclic =
@@ -43,7 +32,7 @@ EntityStatePtr createHeroState(
 	case HERO_RUN_RIGHT:
 		physicsPtr.reset(new BoundedPhysicsDecorator
 		(make_shared<ConstVelocityPhysics>
-			(ConstVelocityPhysics(Point(frameSize.width / 10, 0))),bounds));
+			(ConstVelocityPhysics(Point(frameSize.width / 10, 0))), bounds));
 		break;
 	case HERO_RUN_LEFT:
 		physicsPtr.reset(new BoundedPhysicsDecorator
@@ -62,8 +51,10 @@ EntityStatePtr createHeroState(
 	case HERO_JUMP:
 		physicsPtr.reset(new BoundedPhysicsDecorator
 		(make_shared<JumpPhysics>
-			(JumpPhysics(15, 30, 4)), bounds));
-
+			(JumpPhysics(20, 30, 4)), bounds));
+		break;
+	case HERO_COLLISING:
+		physicsPtr.reset(new FixedWidgetPhysics());
 		break;
 	default:
 		throw std::exception("Unknown physics state!");
@@ -71,12 +62,12 @@ EntityStatePtr createHeroState(
 
 	return make_shared<EntityState>(graphicsPtr, physicsPtr);
 }
-
-EntityPtr createHero(std::string const & rootAnimationsFolder,cv::Rect bounds)
+EntityPtr createHero(std::string const& rootAnimationsFolder, cv::Rect bounds)
 {
 	fs::path root = rootAnimationsFolder;
 	auto idleFolder = root / "idle";
 
+	auto collising = createHeroState(root / "idle", HeroStates::HERO_COLLISING);
 	auto idle = createHeroState(root / "idle", HeroStates::HERO_IDLE);
 	auto runRight = createHeroState(root / "runRight", HeroStates::HERO_RUN_RIGHT, bounds);
 	auto jump = createHeroState(root / "jump", HeroStates::HERO_JUMP, bounds);
@@ -93,17 +84,22 @@ EntityPtr createHero(std::string const & rootAnimationsFolder,cv::Rect bounds)
 	runRight->addState(Event{ EventSenders::SENDER_KEYBOARD, EventTypes::EVENT_KEY_PRESSED, EventCodes::KEY_LEFT }, idle);
 	runRight->addState(Event{ EventSenders::SENDER_KEYBOARD, EventTypes::EVENT_KEY_PRESSED, EventCodes::KEY_UP }, jump);
 	runRight->addState(Event{ EventSenders::SENDER_KEYBOARD, EventTypes::EVENT_KEY_PRESSED, EventCodes::KEY_DOWN }, duck);
+	runRight->addState(Event{ EventSenders::SENDER_ENTITY_STATE, EventTypes::EVENT_PHYSICS, EventCodes::COLLISION_WITH_ENEMY }, collising);
 
-	jump->addState(Event{ EventSenders::SENDER_ENTITY_STATE,EventTypes::EVENT_PHYSICS,EventCodes::ENTITY_PHYSICS_FINISHED },idle);
+	jump->addState(Event{ EventSenders::SENDER_ENTITY_STATE,EventTypes::EVENT_PHYSICS,EventCodes::ENTITY_PHYSICS_FINISHED }, idle);
+	jump->addState(Event{ EventSenders::SENDER_ENTITY_STATE, EventTypes::EVENT_PHYSICS, EventCodes::COLLISION_WITH_ENEMY }, collising);
 
 	duck->addState(Event{ EventSenders::SENDER_ENTITY_STATE,EventTypes::EVENT_GRAPHICS,EventCodes::ENTITY_FINISHED_ANIMATION }, stayDuck);
 	stayDuck->addState(Event{ EventSenders::SENDER_KEYBOARD, EventTypes::EVENT_KEY_PRESSED, EventCodes::KEY_UP }, standAfterDuck);
 
 	standAfterDuck->addState(Event{ EventSenders::SENDER_ENTITY_STATE,EventTypes::EVENT_GRAPHICS,EventCodes::ENTITY_FINISHED_ANIMATION }, idle);
-	
-	runLeft->addState(Event{ EventSenders::SENDER_KEYBOARD, EventTypes::EVENT_KEY_PRESSED, EventCodes::KEY_RIGHT }, idle);
-	EntityPtr hero(new Entity(idle));
 
+	runLeft->addState(Event{ EventSenders::SENDER_KEYBOARD, EventTypes::EVENT_KEY_PRESSED, EventCodes::KEY_RIGHT }, idle);
+	runLeft->addState(Event{ EventSenders::SENDER_ENTITY_STATE, EventTypes::EVENT_PHYSICS, EventCodes::COLLISION_WITH_ENEMY }, collising);
+	collising->addState(Event{ EventSenders::SENDER_TIMER,EventTypes::EVENT_TIMER,EventCodes::TIME_TICK }, idle);
+	
+	EntityPtr hero(new HeroEntity(idle));
+	collising->Register(hero);
 	idle->Register(hero);
 	runRight->Register(hero);
 	jump->Register(hero);
@@ -113,4 +109,16 @@ EntityPtr createHero(std::string const & rootAnimationsFolder,cv::Rect bounds)
 	standAfterDuck->Register(hero);
 
 	return hero;
+}
+
+HeroEntity::HeroEntity(EntityStatePtr state):
+	Entity(state)
+{
+}
+
+void HeroEntity::onCollising()
+{
+	int heightOfScreem = cv::Size(GetSystemMetrics(SM_CXFULLSCREEN), GetSystemMetrics(SM_CYFULLSCREEN)).height;
+	_state->getPhysics()->reset(Point(100,heightOfScreem-230));
+	cout << "on collising of hero" << endl;
 }

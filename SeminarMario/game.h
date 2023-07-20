@@ -8,7 +8,7 @@
 
 using namespace cv;
 
-class game :public Subject
+class Game
 {
 public:
 	void startGame();
